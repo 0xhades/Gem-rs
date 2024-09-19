@@ -8,8 +8,8 @@ Gem-rs is a Rust library that serves as a wrapper around the Gemini API, providi
 - **Error Logging**: Implement a comprehensive error logging system.
 - **Concurrency Support**: Add support for concurrent data processing.
 - **Optimization**: Few functions and data structres need to be optimized.
-- **Upload Files and Images**: Add support for uploading files and images to Gemini.
-- **Caching Files**: Implement file caching to Gemini.
+- **Upload Files and Images (Very soon)**: Add support for uploading files and images to Gemini.
+- **Caching Files (Very soon)**: Implement file caching to Gemini.
 
 ## Dependencies
 
