@@ -7,7 +7,7 @@ use reqwest_streams::*;
 
 use crate::api::{Models, GENERATE_CONTENT, STREAM_GENERATE_CONTENT};
 use crate::errors::GemError;
-use crate::types::{Blob, Error, FileData, GenerateContentResponse, Role, Settings};
+use crate::types::{Blob, Error, FileData, FileManager, GenerateContentResponse, Role, Settings};
 
 // Builder
 pub struct GemSession {
@@ -238,6 +238,9 @@ impl GemSession {
         GemSessionBuilder::new()
     }
 
+    //WARNING: You shouldn't call send methods with files, without consulting the FileCache first
+    //TODO: Implement more restrictive file caching
+
     pub async fn send_message(
         &mut self,
         message: &str,
@@ -265,6 +268,7 @@ impl GemSession {
         settings: &Settings,
     ) -> Result<GenerateContentResponse, GemError> {
         self.context.push_file(None, file_data);
+
         let response = self.send_context(settings).await?;
         if let Some(candidate) = response.get_candidates().first() {
             if let Some(content) = candidate.get_content() {
@@ -280,6 +284,7 @@ impl GemSession {
         Ok(response)
     }
 
+    // inline data with the request without caching and storing within the context (prompt with one time)
     pub async fn send_blob(
         &mut self,
         blob: Blob,

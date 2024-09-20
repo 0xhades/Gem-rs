@@ -14,6 +14,7 @@ pub enum GemError {
     ParsingError(serde_json::Error),
     FeedbackError(String),
     StreamError(String),
+    FileError(String),
 }
 
 impl fmt::Display for GemError {
@@ -30,6 +31,7 @@ impl fmt::Display for GemError {
             }
             GemError::FeedbackError(e) => write!(f, "Feedback error: {}", e),
             GemError::StreamError(e) => write!(f, "Stream error: {}", e),
+            GemError::FileError(e) => write!(f, "File error: {}", e),
         }
     }
 }

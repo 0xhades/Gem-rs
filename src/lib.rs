@@ -4,6 +4,7 @@ pub mod api;
 pub mod client;
 pub mod errors;
 pub mod types;
+mod utils;
 
 pub fn init_log() {
     pretty_env_logger::init();
@@ -13,4 +14,8 @@ pub fn init_log() {
 
 /*
 - TODO: Log the responses in case of an error
+
+- file caching:
+    - local cache within settings [shared with all contexts] per API Key (never upload same file twice)
+    - gemini cache [upload then check if file proccessed in loop]
 */
