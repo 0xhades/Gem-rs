@@ -11,7 +11,7 @@ Gem-rs is a Rust library that serves as a wrapper around the Gemini API, providi
 - **Upload Files and Images [✅]**: Add support for uploading files and images to Gemini.
 - **Caching Files [✅]**: Implement file caching to Gemini.
 - **More File Types**: Add support to more file types eg. gif, doc, docx, code files, etc.
-- **APIs abnormalites**: DELETE "files/x" dosen't delete the cloud cache related to the API key, it only change the URI. 
+- **APIs abnormalites**: DELETE "files/x" dosen't delete the cloud cache related to the API key, it only change the URI.
 - **API Key Env**: I'm a busy medical student, implement it yourself (JK, I have finals).
 
 ## Dependencies
@@ -22,7 +22,7 @@ To use the Gem-rs library, add the following dependencies to your `Cargo.toml` f
 [dependencies]
 futures = "*"
 tokio = { version = "*", features = ["full"] }
-gem-rs = { path = "..." }
+gem-rs = "*"
 ```
 
 ## Example Usage
