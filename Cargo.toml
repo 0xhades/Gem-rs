@@ -1,6 +1,6 @@
 [package]
 name = "gem-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Ali Aish <onlyghostz@gmail.com>"]
 description = "A Rust library that serves as a wrapper around the Gemini API, providing support for streaming"
