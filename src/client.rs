@@ -1,21 +1,30 @@
+//! Client module for interacting with the Gemini API.
+//!
+//! This module provides the main structures and implementations for creating and managing
+//! sessions with the Gemini API, including support for sending messages, files, and blobs,
+//! as well as streaming responses.
+
 use super::types::Context;
 use error::StreamBodyError;
-use futures::stream::TryStreamExt;
 use futures::Stream;
 use reqwest::{Client as webClient, StatusCode};
 use reqwest_streams::*;
 
 use crate::api::{Models, GENERATE_CONTENT, STREAM_GENERATE_CONTENT};
 use crate::errors::GemError;
-use crate::types::{Blob, Error, FileData, FileManager, GenerateContentResponse, Role, Settings};
+use crate::types::{Blob, Error, FileData, GenerateContentResponse, Role, Settings};
 
-// Builder
+/// Represents a session with the Gemini API.
 pub struct GemSession {
     client: Client,
     context: Context,
 }
+
+/// Builder for creating a `GemSession` with custom configurations.
 pub struct GemSessionBuilder(Config);
-struct Config {
+
+/// Internal configuration structure for `GemSessionBuilder`.
+pub struct Config {
     timeout: std::time::Duration,
     connect_timeout: std::time::Duration,
     model: Models,
@@ -23,6 +32,7 @@ struct Config {
 }
 
 impl GemSessionBuilder {
+    /// Creates a new `GemSessionBuilder` with default settings.
     pub fn new() -> GemSessionBuilder {
         GemSessionBuilder(Config {
             timeout: std::time::Duration::from_secs(30),
@@ -32,6 +42,7 @@ impl GemSessionBuilder {
         })
     }
 
+    /// Creates a default `GemSession` with the provided API key.
     pub fn default(api_key: String) -> GemSession {
         GemSession {
             client: Client::new(
@@ -44,31 +55,37 @@ impl GemSessionBuilder {
         }
     }
 
+    /// Sets the timeout for API requests.
     pub fn timeout(mut self, timeout: std::time::Duration) -> Self {
         self.0.timeout = timeout;
         self
     }
 
+    /// Sets the Gemini model to use for the session.
     pub fn model(mut self, model: Models) -> Self {
         self.0.model = model;
         self
     }
 
+    /// Sets the connection timeout for API requests.
     pub fn connect_timeout(mut self, connect_timeout: std::time::Duration) -> Self {
         self.0.connect_timeout = connect_timeout;
         self
     }
 
+    /// Sets the initial context for the session.
     pub fn context(mut self, context: Context) -> Self {
         self.0.context = context;
         self
     }
 
+    /// Builds a `GemSession` with the configured settings and provided API key.
     pub fn build(self, api_key: String) -> GemSession {
         GemSession::build(api_key, self.0)
     }
 }
 
+/// Internal client for making API requests to Gemini.
 pub struct Client {
     client: webClient,
     api_key: String,
@@ -76,6 +93,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// Creates a new `Client` instance.
     pub fn new(
         api_key: String,
         model: Models,
@@ -93,6 +111,7 @@ impl Client {
         }
     }
 
+    /// Sends a context to the Gemini API and returns the response.
     pub(crate) async fn send_context(
         &self,
         context: &Context,
@@ -170,6 +189,7 @@ impl Client {
         Ok(response)
     }
 
+    /// Sends a context to the Gemini API and returns a stream of responses.
     pub(crate) async fn send_context_stream(
         &self,
         context: &Context,
@@ -218,6 +238,7 @@ impl Client {
 }
 
 impl GemSession {
+    /// Builds a new `GemSession` with the provided API key and configuration.
     pub(crate) fn build(api_key: String, config: Config) -> Self {
         GemSession {
             client: Client::new(
@@ -230,17 +251,17 @@ impl GemSession {
         }
     }
 
+    /// Creates a new `GemSession` with default settings and the provided API key.
     pub fn new(api_key: String) -> Self {
         GemSessionBuilder::default(api_key)
     }
 
+    /// Returns a new `GemSessionBuilder` for creating a customized `GemSession`.
     pub fn Builder() -> GemSessionBuilder {
         GemSessionBuilder::new()
     }
 
-    //WARNING: You shouldn't call send methods with files, without consulting the FileCache first
-    //TODO: Implement more restrictive file caching
-
+    /// Sends a message to the Gemini API and returns the response.
     pub async fn send_message(
         &mut self,
         message: &str,
@@ -262,6 +283,7 @@ impl GemSession {
         Ok(response)
     }
 
+    /// Sends a file to the Gemini API and returns the response.
     pub async fn send_file(
         &mut self,
         file_data: FileData,
@@ -284,7 +306,7 @@ impl GemSession {
         Ok(response)
     }
 
-    // inline data with the request without caching and storing within the context (prompt with one time)
+    /// Sends a blob to the Gemini API and returns the response.
     pub async fn send_blob(
         &mut self,
         blob: Blob,
@@ -306,6 +328,7 @@ impl GemSession {
         Ok(response)
     }
 
+    /// Sends a message with an attached file to the Gemini API and returns the response.
     pub async fn send_message_with_file(
         &mut self,
         message: &str,
@@ -329,6 +352,7 @@ impl GemSession {
         Ok(response)
     }
 
+    /// Sends a message with an attached blob to the Gemini API and returns the response.
     pub async fn send_message_with_blob(
         &mut self,
         message: &str,
@@ -351,6 +375,7 @@ impl GemSession {
         Ok(response)
     }
 
+    /// Sends a message to the Gemini API and returns a stream of responses.
     pub async fn send_message_stream(
         &mut self,
         message: &str,
@@ -361,6 +386,7 @@ impl GemSession {
         self.send_context_stream(settings).await
     }
 
+    /// Sends a file to the Gemini API and returns a stream of responses.
     pub async fn send_file_stream(
         &mut self,
         file_data: FileData,
@@ -371,6 +397,7 @@ impl GemSession {
         self.send_context_stream(settings).await
     }
 
+    /// Sends a blob to the Gemini API and returns a stream of responses.
     pub async fn send_blob_stream(
         &mut self,
         blob: Blob,
@@ -381,6 +408,7 @@ impl GemSession {
         self.send_context_stream(settings).await
     }
 
+    /// Sends a message with an attached file to the Gemini API and returns a stream of responses.
     pub async fn send_message_with_file_stream(
         &mut self,
         message: &str,
@@ -393,6 +421,7 @@ impl GemSession {
         self.send_context_stream(settings).await
     }
 
+    /// Sends a message with an attached blob to the Gemini API and returns a stream of responses.
     pub async fn send_message_with_blob_stream(
         &mut self,
         message: &str,
@@ -404,6 +433,7 @@ impl GemSession {
         self.send_context_stream(settings).await
     }
 
+    /// Internal method to send a context to the Gemini API.
     async fn send_context(
         &mut self,
         settings: &Settings,
@@ -411,6 +441,7 @@ impl GemSession {
         self.client.send_context(&self.context, settings).await
     }
 
+    /// Internal method to send a context to the Gemini API and return a stream of responses.
     async fn send_context_stream(
         &mut self,
         settings: &Settings,

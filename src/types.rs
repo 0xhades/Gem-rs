@@ -659,7 +659,7 @@ enum HarmCategory {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub(crate) struct Error {
+pub struct Error {
     code: i32,
     message: String,
     status: String,
