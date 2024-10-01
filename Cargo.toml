@@ -9,7 +9,7 @@ readme = "README.md"
 homepage = "https://github.com/0xhades/gem-rs"
 repository = "https://github.com/0xhades/gem-rs"
 license = "MIT OR Apache-2.0"
-keywords = ["gemini", "api", "wrapper", "streaming", "ai", "google", "llm"]
+keywords = ["gemini", "api", "wrapper", "ai", "google"]
 categories = ["api-bindings", "asynchronous"]
 
 [dependencies]
