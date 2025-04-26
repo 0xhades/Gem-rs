@@ -476,10 +476,6 @@ impl GemSession {
 
 mod tests {
 
-    use crate::types::HarmBlockThreshold;
-
-    use super::*;
-
     #[tokio::test]
     async fn test_gem_session_send_context() {
         dotenv().expect("Failed to load Gemini API key");

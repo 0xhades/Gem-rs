@@ -2,7 +2,6 @@ use std::{collections::HashMap, path::Path};
 
 use base64::{engine::general_purpose, Engine as _};
 use dotenv::dotenv;
-use log::log;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -158,8 +157,8 @@ impl Blob {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileData {
-    mime_type: String,
-    file_uri: String, // File URI
+    pub mime_type: String,
+    pub file_uri: String, // File URI
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -448,8 +447,8 @@ pub struct FileManager {
 
 impl FileManager {
     pub fn new() -> Self {
-        dotenv().expect("Failed to load Gemini API key");
-        let api_key = std::env::var("GEMINI_API_KEY").unwrap();
+        dotenv().ok();
+        let api_key = std::env::var("GEMINI_API_KEY").expect("Failed to load Gemini API key");
 
         Self {
             files: Mutex::new(HashMap::new()),
@@ -974,8 +973,6 @@ impl Context {
 }
 
 mod tests {
-
-    use super::*;
 
     #[test]
     fn test_deserialize_generate_content_response() {
