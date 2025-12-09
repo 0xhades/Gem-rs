@@ -542,6 +542,17 @@ impl GemSession {
         Ok(Box::new(self.send_context_stream(settings).await?))
     }
 
+    /// Sends multiple files to the Gemini API and returns a stream of responses.
+    pub async fn send_files_stream(
+        &mut self,
+        files_data: &[FileData],
+        role: Role,
+        settings: &Settings,
+    ) -> StreamResponseResult {
+        self.context.push_files(role, files_data);
+        Ok(Box::new(self.send_context_stream(settings).await?))
+    }
+
     /// Sends a blob to the Gemini API and returns a stream of responses.
     pub async fn send_blob_stream(
         &mut self,
@@ -550,6 +561,17 @@ impl GemSession {
         settings: &Settings,
     ) -> StreamResponseResult {
         self.context.push_blob(role, blob);
+        Ok(Box::new(self.send_context_stream(settings).await?))
+    }
+
+    /// Sends multiple blobs to the Gemini API and returns a stream of responses.
+    pub async fn send_blobs_stream(
+        &mut self,
+        blobs: &[Blob],
+        role: Role,
+        settings: &Settings,
+    ) -> StreamResponseResult {
+        self.context.push_blobs(role, blobs);
         Ok(Box::new(self.send_context_stream(settings).await?))
     }
 
@@ -566,6 +588,19 @@ impl GemSession {
         Ok(Box::new(self.send_context_stream(settings).await?))
     }
 
+    /// Sends a message with multiple attached files to the Gemini API and returns a stream of responses.
+    pub async fn send_message_with_files_stream(
+        &mut self,
+        message: &str,
+        files_data: &[FileData],
+        role: Role,
+        settings: &Settings,
+    ) -> StreamResponseResult {
+        self.context
+            .push_message_with_files(role, message, files_data);
+        Ok(Box::new(self.send_context_stream(settings).await?))
+    }
+
     /// Sends a message with an attached blob to the Gemini API and returns a stream of responses.
     pub async fn send_message_with_blob_stream(
         &mut self,
@@ -575,6 +610,18 @@ impl GemSession {
         settings: &Settings,
     ) -> StreamResponseResult {
         self.context.push_message_with_blob(role, message, blob);
+        Ok(Box::new(self.send_context_stream(settings).await?))
+    }
+
+    /// Sends a message with multiple attached blobs to the Gemini API and returns a stream of responses.
+    pub async fn send_message_with_blobs_stream(
+        &mut self,
+        message: &str,
+        blobs: &[Blob],
+        role: Role,
+        settings: &Settings,
+    ) -> StreamResponseResult {
+        self.context.push_message_with_blobs(role, message, blobs);
         Ok(Box::new(self.send_context_stream(settings).await?))
     }
 
