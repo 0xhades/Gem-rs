@@ -968,12 +968,30 @@ impl Context {
         });
     }
 
+    pub fn push_files(&mut self, role: Role, files_data: &[FileData]) {
+        self.contents.push(Content {
+            role: Some(role),
+            parts: files_data.iter().cloned().map(|file_data| Part {
+                data: PartData::FileData { file_data },
+            }).collect(),
+        });
+    }
+
     pub fn push_blob(&mut self, role: Role, blob: Blob) {
         self.contents.push(Content {
             role: Some(role),
             parts: vec![Part {
                 data: PartData::InlineData { inline_data: blob },
             }],
+        });
+    }
+
+    pub fn push_blobs(&mut self, role: Role, blobs: &[Blob]) {
+        self.contents.push(Content {
+            role: Some(role),
+            parts: blobs.iter().cloned().map(|blob| Part {
+                data: PartData::InlineData { inline_data: blob },
+            }).collect(),
         });
     }
 
@@ -993,6 +1011,21 @@ impl Context {
         });
     }
 
+    pub fn push_message_with_files(&mut self, role: Role, content: &str, files_data: &[FileData]) {
+        self.contents.push(Content {
+            role: Some(role),
+            parts: std::iter::once(Part {
+                data: PartData::Text {
+                    text: content.to_string(),
+                },
+            })
+            .chain(files_data.iter().cloned().map(|file_data| Part {
+                data: PartData::FileData { file_data },
+            }))
+            .collect(),
+        });
+    }
+
     pub fn push_message_with_blob(&mut self, role: Role, content: &str, blob: Blob) {
         self.contents.push(Content {
             role: Some(role),
@@ -1006,6 +1039,21 @@ impl Context {
                     data: PartData::InlineData { inline_data: blob },
                 },
             ],
+        });
+    }
+
+    pub fn push_message_with_blobs(&mut self, role: Role, content: &str, blobs: &[Blob]) {
+        self.contents.push(Content {
+            role: Some(role),
+            parts: std::iter::once(Part {
+                data: PartData::Text {
+                    text: content.to_string(),
+                },
+            })
+            .chain(blobs.iter().cloned().map(|blob| Part {
+                data: PartData::InlineData { inline_data: blob },
+            }))
+            .collect(),
         });
     }
 
