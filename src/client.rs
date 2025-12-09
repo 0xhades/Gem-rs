@@ -399,6 +399,29 @@ impl GemSession {
         Ok(response)
     }
 
+    /// Sends multiple blobs to the Gemini API and returns the response.
+    pub async fn send_blobs(
+        &mut self,
+        blobs: &[Blob],
+        role: Role,
+        settings: &Settings,
+    ) -> ResponseResult {
+        self.context.push_blobs(role, blobs);
+        let response = self.send_context(settings).await?;
+        if let Some(candidate) = response.get_candidates().first() {
+            if let Some(content) = candidate.get_content() {
+                self.context.push_message(
+                    Role::Model,
+                    match content.get_text() {
+                        Some(text) => text.clone(),
+                        None => return Err(GemError::EmptyApiResponse),
+                    },
+                );
+            }
+        }
+        Ok(response)
+    }
+
     /// Sends a message with an attached file to the Gemini API and returns the response.
     pub async fn send_message_with_file(
         &mut self,
@@ -458,6 +481,30 @@ impl GemSession {
         settings: &Settings,
     ) -> ResponseResult {
         self.context.push_message_with_blob(role, message, blob);
+        let response = self.send_context(settings).await?;
+        if let Some(candidate) = response.get_candidates().first() {
+            if let Some(content) = candidate.get_content() {
+                self.context.push_message(
+                    Role::Model,
+                    match content.get_text() {
+                        Some(text) => text.clone(),
+                        None => return Err(GemError::EmptyApiResponse),
+                    },
+                );
+            }
+        }
+        Ok(response)
+    }
+
+    /// Sends a message with multiple attached blobs to the Gemini API and returns the response.
+    pub async fn send_message_with_blobs(
+        &mut self,
+        message: &str,
+        blobs: &[Blob],
+        role: Role,
+        settings: &Settings,
+    ) -> ResponseResult {
+        self.context.push_message_with_blobs(role, message, blobs);
         let response = self.send_context(settings).await?;
         if let Some(candidate) = response.get_candidates().first() {
             if let Some(content) = candidate.get_content() {
