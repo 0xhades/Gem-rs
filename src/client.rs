@@ -352,6 +352,30 @@ impl GemSession {
         Ok(response)
     }
 
+    /// Sends multiple files to the Gemini API and returns the response.
+    pub async fn send_files(
+        &mut self,
+        files_data: &[FileData],
+        role: Role,
+        settings: &Settings,
+    ) -> ResponseResult {
+        self.context.push_files(role, files_data);
+
+        let response = self.send_context(settings).await?;
+        if let Some(candidate) = response.get_candidates().first() {
+            if let Some(content) = candidate.get_content() {
+                self.context.push_message(
+                    Role::Model,
+                    match content.get_text() {
+                        Some(text) => text.clone(),
+                        None => return Err(GemError::EmptyApiResponse),
+                    },
+                );
+            }
+        }
+        Ok(response)
+    }
+
     /// Sends a blob to the Gemini API and returns the response.
     pub async fn send_blob(
         &mut self,
@@ -385,6 +409,31 @@ impl GemSession {
     ) -> ResponseResult {
         self.context
             .push_message_with_file(role, message, file_data);
+        let response = self.send_context(settings).await?;
+        if let Some(candidate) = response.get_candidates().first() {
+            if let Some(content) = candidate.get_content() {
+                self.context.push_message(
+                    Role::Model,
+                    match content.get_text() {
+                        Some(text) => text.clone(),
+                        None => return Err(GemError::EmptyApiResponse),
+                    },
+                );
+            }
+        }
+        Ok(response)
+    }
+
+    /// Sends a message with multiple attached files to the Gemini API and returns the response.
+    pub async fn send_message_with_files(
+        &mut self,
+        message: &str,
+        files_data: &[FileData],
+        role: Role,
+        settings: &Settings,
+    ) -> ResponseResult {
+        self.context
+            .push_message_with_files(role, message, files_data);
         let response = self.send_context(settings).await?;
         if let Some(candidate) = response.get_candidates().first() {
             if let Some(content) = candidate.get_content() {

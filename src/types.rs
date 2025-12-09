@@ -968,6 +968,15 @@ impl Context {
         });
     }
 
+    pub fn push_files(&mut self, role: Role, files_data: &[FileData]) {
+        self.contents.push(Content {
+            role: Some(role),
+            parts: files_data.iter().cloned().map(|file_data| Part {
+                data: PartData::FileData { file_data },
+            }).collect(),
+        });
+    }
+
     pub fn push_blob(&mut self, role: Role, blob: Blob) {
         self.contents.push(Content {
             role: Some(role),
@@ -990,6 +999,21 @@ impl Context {
                     data: PartData::FileData { file_data },
                 },
             ],
+        });
+    }
+
+    pub fn push_message_with_files(&mut self, role: Role, content: &str, files_data: &[FileData]) {
+        self.contents.push(Content {
+            role: Some(role),
+            parts: std::iter::once(Part {
+                data: PartData::Text {
+                    text: content.to_string(),
+                },
+            })
+            .chain(files_data.iter().cloned().map(|file_data| Part {
+                data: PartData::FileData { file_data },
+            }))
+            .collect(),
         });
     }
 
